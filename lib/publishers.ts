@@ -11,6 +11,19 @@ export interface Publisher {
 }
 
 export const PUBLISHERS: Record<string, Publisher> = {
+  "purewow.stardustai.co": {
+    name: "PureWow",
+    realUrl: "https://www.purewow.com",
+    publisherId: "782b6bbf-9007-44f2-847f-e8d9b36c6471",
+    description: "Women's lifestyle, entertainment, food, beauty and family content",
+    entityType: "Article",
+    category: "lifestyle",
+    whatsappNumber: "1234567890", // TODO: replace with real WA number
+    whatsappContext: "lifestyle_query",
+    geoMap: {
+      DEFAULT: "https://www.purewow.com",
+    },
+  },
   "sneakernews.stardustai.co": {
     name: "SneakerNews",
     realUrl: "https://sneakernews.com",
