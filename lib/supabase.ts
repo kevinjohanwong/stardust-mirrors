@@ -25,7 +25,10 @@ export async function getArticlesByPublisher(
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error) throw error;
+  if (error) {
+    console.error("getArticlesByPublisher error:", error.message);
+    return [];
+  }
   return data || [];
 }
 
@@ -41,7 +44,10 @@ export async function getArticleBySlug(
     .ilike("url", `%/${slug}%`)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    console.error("getArticleBySlug error:", error.message);
+    return null;
+  }
   return data;
 }
 
@@ -52,6 +58,9 @@ export async function getAllArticleUrls(publisherId: string): Promise<{ url: str
     .eq("publisher_id", publisherId)
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.error("getAllArticleUrls error:", error.message);
+    return [];
+  }
   return data || [];
 }

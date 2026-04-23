@@ -11,10 +11,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: publisher?.name || "Stardust",
     description: publisher?.description || "",
+    // robots.txt handles crawler differentiation (AI bots allowed, SEO bots blocked)
+    // Do NOT set noindex here — it would block AI crawlers from indexing content
     robots: {
-      index: false,   // block Google/Bing from indexing
-      follow: false,
-      nocache: true,
+      index: true,
+      follow: true,
     },
   };
 }
