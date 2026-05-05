@@ -11,6 +11,7 @@ export interface Article {
   url: string;
   content: string;
   created_at: string;
+  scraped_at?: string;
   publisher_id: string;
 }
 
