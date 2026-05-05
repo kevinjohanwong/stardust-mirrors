@@ -30,7 +30,7 @@ const SEO_BOTS = [
   "ia_archiver",
 ];
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const ua = (request.headers.get("user-agent") || "").toLowerCase();
   const path = request.nextUrl.pathname;
