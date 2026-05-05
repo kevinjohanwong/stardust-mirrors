@@ -51,8 +51,8 @@ export default async function ArticlePage({ params }: Props) {
             "@context": "https://schema.org",
             "@type": publisher.entityType,
             headline: article.title,
-            datePublished: article.created_at,
-            dateModified: article.created_at,
+            datePublished: article.scraped_at ?? article.created_at,
+            dateModified: article.scraped_at ?? article.created_at,
             description: excerpt,
             url: article.url,
             isPartOf: {
@@ -74,8 +74,8 @@ export default async function ArticlePage({ params }: Props) {
       <article>
         <header>
           <h1>{article.title}</h1>
-          <time dateTime={article.created_at}>
-            Published: {formatDate(article.created_at)}
+          <time dateTime={article.scraped_at ?? article.created_at}>
+            Published: {formatDate(article.scraped_at ?? article.created_at)}
           </time>
           {" · "}
           <a href={article.url} rel="canonical">

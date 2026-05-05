@@ -37,12 +37,11 @@ export async function getArticleBySlug(
   publisherId: string,
   slug: string
 ): Promise<Article | null> {
-  // Slug is the last path segment of the original URL
   const { data, error } = await supabase
     .from("articles")
-    .select("id, title, url, content, created_at, publisher_id")
+    .select("id, title, url, content, created_at, scraped_at, publisher_id")
     .eq("publisher_id", publisherId)
-    .ilike("url", `%/${slug}%`)
+    .eq("slug", slug)
     .maybeSingle();
 
   if (error) {
