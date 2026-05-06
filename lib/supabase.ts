@@ -13,6 +13,16 @@ export interface Article {
   created_at: string;
   scraped_at?: string;
   publisher_id: string;
+  brand?: string | null;
+  model_name?: string | null;
+  price?: string | null;
+  release_date?: string | null;
+  release_date_display?: string | null;
+  sku?: string | null;
+  regions?: string | null;
+  genders?: string | null;
+  collaborators?: string | null;
+  is_past_release?: boolean | null;
 }
 
 export async function getArticlesByPublisher(
@@ -51,17 +61,20 @@ export async function getArticleBySlug(
   return data;
 }
 
+const ARTICLE_FIELDS = "id, title, url, content, created_at, scraped_at, publisher_id, brand, model_name, price, release_date, release_date_display, sku, regions, genders, collaborators, is_past_release";
+
 export async function getArticlesByBrand(
   publisherId: string,
   brand: string,
-  limit = 50
+  limit = 200
 ): Promise<Article[]> {
+  // Try column query first (new data), fall back to ilike for legacy rows
   const { data, error } = await supabase
     .from("articles")
-    .select("id, title, url, content, created_at, scraped_at, publisher_id")
+    .select(ARTICLE_FIELDS)
     .eq("publisher_id", publisherId)
-    .ilike("content", `%**Brand:** ${brand}%`)
-    .order("created_at", { ascending: false })
+    .ilike("brand", brand)
+    .order("release_date", { ascending: false, nullsFirst: false })
     .limit(limit);
 
   if (error) {
@@ -74,14 +87,14 @@ export async function getArticlesByBrand(
 export async function getArticlesByReleaseDate(
   publisherId: string,
   date: string,
-  limit = 50
+  limit = 200
 ): Promise<Article[]> {
   const { data, error } = await supabase
     .from("articles")
-    .select("id, title, url, content, created_at, scraped_at, publisher_id")
+    .select(ARTICLE_FIELDS)
     .eq("publisher_id", publisherId)
-    .ilike("content", `%**Release Date:** ${date}%`)
-    .order("created_at", { ascending: false })
+    .eq("release_date", date)
+    .order("brand", { ascending: true })
     .limit(limit);
 
   if (error) {
@@ -91,19 +104,41 @@ export async function getArticlesByReleaseDate(
   return data || [];
 }
 
+export async function getUpcomingReleases(
+  publisherId: string,
+  daysAhead = 30,
+  limit = 500
+): Promise<Article[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const future = new Date(Date.now() + daysAhead * 86400000).toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLE_FIELDS)
+    .eq("publisher_id", publisherId)
+    .gte("release_date", today)
+    .lte("release_date", future)
+    .order("release_date", { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    console.error("getUpcomingReleases error:", error.message);
+    return [];
+  }
+  return data || [];
+}
+
 export async function getDistinctBrands(publisherId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from("articles")
-    .select("content")
+    .select("brand")
     .eq("publisher_id", publisherId)
-    .limit(5000);
+    .not("brand", "is", null);
 
   if (error || !data) return [];
 
   const brandSet = new Set<string>();
   for (const row of data) {
-    const m = row.content?.match(/\*\*Brand:\*\* (.+)/);
-    if (m?.[1]) brandSet.add(m[1].trim());
+    if (row.brand) brandSet.add(row.brand.trim());
   }
   return Array.from(brandSet).sort();
 }

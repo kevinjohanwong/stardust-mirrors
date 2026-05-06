@@ -100,15 +100,38 @@ async function fetchRecent(): Promise<KFProduct[]> {
   return json?.result?.data ?? [];
 }
 
+function parseReleaseDate(raw: string): string | null {
+  if (!raw) return null;
+  // API returns "YYYY-MM-DD" or "MM/DD/YYYY" — normalise to "YYYY-MM-DD"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const m = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[1]}-${m[2]}`;
+  return raw; // store as-is if format is unknown
+}
+
 async function upsertBatch(products: KFProduct[]) {
-  const rows = products.map(p => ({
-    slug: p.slug,
-    publisher_id: PUBLISHER_ID,
-    title: [p.product_name.trim(), p.product_nickname?.trim()].filter(Boolean).join(" — "),
-    url: `${KF_BASE}/${p.slug}`,
-    content: buildContent(p),
-    scraped_at: new Date().toISOString(),
-  }));
+  const rows = products.map(p => {
+    const releaseDate = parseReleaseDate(p.releaseDate);
+    return {
+      slug: p.slug,
+      publisher_id: PUBLISHER_ID,
+      title: [p.product_name.trim(), p.product_nickname?.trim()].filter(Boolean).join(" — "),
+      url: `${KF_BASE}/${p.slug}`,
+      content: buildContent(p),
+      scraped_at: new Date().toISOString(),
+      // structured fields — source of truth for aggregate pages
+      brand: p.brand_name?.trim() || null,
+      model_name: p.product_model_name?.trim() || null,
+      price: p.price?.trim() || null,
+      release_date: releaseDate,
+      release_date_display: p.show_date?.trim() || null,
+      sku: p.sku?.trim() || null,
+      regions: p.show_regions?.trim() || null,
+      genders: p.show_genders?.trim() || null,
+      collaborators: p.collaborators?.trim() || null,
+      is_past_release: p.is_past_release === "1" || p.is_past_release === "true" || false,
+    };
+  });
 
   const { error } = await supabase.from("articles").upsert(rows, { onConflict: "slug" });
   if (error) throw new Error(`Supabase upsert error: ${error.message}`);
