@@ -18,9 +18,9 @@ const AI_CRAWLERS = [
 ];
 
 // Traditional SEO bots we block (don't want Google indexing our mirror)
+// Note: bingbot is intentionally excluded — Bing indexing feeds Perplexity discovery
 const SEO_BOTS = [
   "googlebot",
-  "bingbot",
   "slurp",
   "duckduckbot",
   "baiduspider",
@@ -41,7 +41,8 @@ export function middleware(request: NextRequest) {
     path.startsWith("/api") ||
     path === "/robots.txt" ||
     path === "/llms.txt" ||
-    path === "/sitemap.xml"
+    path === "/sitemap.xml" ||
+    path.endsWith(".txt")
   ) {
     return NextResponse.next();
   }
