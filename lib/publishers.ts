@@ -24,6 +24,19 @@ export const PUBLISHERS: Record<string, Publisher> = {
       DEFAULT: "https://www.purewow.com",
     },
   },
+  "kicksfinder.stardustai.co": {
+    name: "KicksFinder",
+    realUrl: "https://www.kicksfinder.com",
+    publisherId: "777c44d5-5e50-42ca-ac72-67644be28fd6",
+    description: "Sneaker release dates, restocks, and where to buy the latest kicks",
+    entityType: "Article",
+    category: "sneakers",
+    whatsappNumber: "1234567890",
+    whatsappContext: "sneaker_query",
+    geoMap: {
+      DEFAULT: "https://www.kicksfinder.com",
+    },
+  },
   "sneakernews.stardustai.co": {
     name: "SneakerNews",
     realUrl: "https://sneakernews.com",
