@@ -9,11 +9,8 @@ export async function GET() {
 
   const robots = `# Stardust AI Mirror — AI crawlers welcome, SEO bots blocked
 
-# Traditional search engines — do not index this mirror
+# Traditional search engines — do not index this mirror (avoid duplicate content penalties)
 User-agent: Googlebot
-Disallow: /
-
-User-agent: Bingbot
 Disallow: /
 
 User-agent: Slurp
@@ -28,20 +25,36 @@ Disallow: /
 User-agent: YandexBot
 Disallow: /
 
-# AI training and retrieval crawlers — full access
+# Bing — allowed because Perplexity AI uses Bing's index for discovery
+User-agent: Bingbot
+Allow: /
+
+# AI retrieval crawlers — full access
 User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: Claude-Bot
 Allow: /
 
-User-agent: Google-Extended
+User-agent: ClaudeBot
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
 User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
 Allow: /
 
 User-agent: Applebot-Extended
