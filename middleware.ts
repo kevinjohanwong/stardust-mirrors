@@ -2,6 +2,30 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { PUBLISHERS } from "@/lib/publishers";
 
+// Bots we track for telemetry (subset — these signal Perplexity indexing progress)
+const TRACKED_BOTS: Record<string, string> = {
+  perplexitybot: "PerplexityBot",
+  "perplexity-user": "Perplexity-User",
+  bingbot: "Bingbot",
+};
+
+function logBotVisit(host: string, path: string, ua: string, botName: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) return;
+  // Fire-and-forget — don't await, never block the response
+  fetch(`${supabaseUrl}/rest/v1/bot_visits`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ host, path, user_agent: ua, bot_name: botName }),
+  }).catch(() => {});
+}
+
 // AI crawlers we want to serve clean content to
 const AI_CRAWLERS = [
   "gptbot",
@@ -10,6 +34,7 @@ const AI_CRAWLERS = [
   "google-extended",
   "anthropic-ai",
   "perplexitybot",
+  "perplexity-user",
   "applebot-extended",
   "cohere-ai",
   "diffbot",
@@ -56,8 +81,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // AI crawlers → serve the clean mirror content
+  // AI crawlers → serve the clean mirror content + log tracked bots
   if (AI_CRAWLERS.some((bot) => ua.includes(bot))) {
+    const trackedKey = Object.keys(TRACKED_BOTS).find((k) => ua.includes(k));
+    if (trackedKey) {
+      logBotVisit(cleanHost, path, request.headers.get("user-agent") || "", TRACKED_BOTS[trackedKey]);
+    }
     return NextResponse.next();
   }
 

@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { marked } from "marked";
 import { getPublisher, generateSessionRef, buildWhatsAppLink } from "@/lib/publishers";
 import { getArticleBySlug } from "@/lib/supabase";
 
@@ -22,6 +23,23 @@ function getExcerpt(content: string, maxChars = 300): string {
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+  const publisher = getPublisher(host);
+  if (!publisher) return {};
+  const article = await getArticleBySlug(publisher.publisherId, slug);
+  if (!article) return {};
+  const excerpt = getExcerpt(article.content, 160);
+  return {
+    title: `${article.title} | ${publisher.name}`,
+    description: excerpt,
+    alternates: { canonical: article.url },
+    openGraph: { title: article.title, description: excerpt, url: article.url },
+  };
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -86,11 +104,9 @@ export default async function ArticlePage({ params }: Props) {
         <hr />
 
         {/* Clean Markdown content — no ads, no tracking, no nav clutter */}
-        <section>
-          <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
-            {article.content}
-          </pre>
-        </section>
+        <section
+          dangerouslySetInnerHTML={{ __html: marked.parse(article.content) as string }}
+        />
 
         <hr />
 

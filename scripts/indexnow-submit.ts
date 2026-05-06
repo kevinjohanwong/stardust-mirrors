@@ -27,8 +27,8 @@ async function submitBatch(urls: string[]) {
 const urls = await fetchSitemapUrls();
 console.log(`Found ${urls.length} URLs in sitemap`);
 
-// IndexNow accepts max 10,000 URLs per request
-const BATCH = 10_000;
+// Bing IndexNow works best with smaller batches for new/unverified domains
+const BATCH = 100;
 let submitted = 0;
 for (let i = 0; i < urls.length; i += BATCH) {
   const batch = urls.slice(i, i + BATCH);
