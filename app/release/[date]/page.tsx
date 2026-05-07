@@ -105,7 +105,7 @@ function ReleaseTable({ articles }: { articles: Awaited<ReturnType<typeof getArt
                 {a.collaborators && <div style={{ color: "#888", fontSize: 12 }}>ft. {a.collaborators}</div>}
               </td>
               <td style={td}>{a.sku || "—"}</td>
-              <td style={td}>{a.price ? `$${a.price}` : "—"}</td>
+              <td style={td}>{a.price ?? "—"}</td>
               <td style={td}>{a.genders || "—"}</td>
               <td style={td}>{a.regions || "—"}</td>
               <td style={td}>

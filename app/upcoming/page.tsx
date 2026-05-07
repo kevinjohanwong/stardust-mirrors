@@ -89,7 +89,7 @@ export default async function UpcomingPage() {
                           : "—"}
                       </td>
                       <td style={td}>{a.sku || "—"}</td>
-                      <td style={td}>{a.price ? `$${a.price}` : "—"}</td>
+                      <td style={td}>{a.price ?? "—"}</td>
                       <td style={td}>{a.regions || "—"}</td>
                       <td style={td}>
                         <a href={a.url} rel="nofollow noopener" target="_blank" style={{ color: "#888", fontSize: 12 }}>

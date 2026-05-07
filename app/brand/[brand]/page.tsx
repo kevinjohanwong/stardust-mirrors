@@ -114,7 +114,7 @@ function ReleaseTable({ articles }: { articles: ReturnType<typeof getArticlesByB
                 {a.collaborators && <div style={{ color: "#888", fontSize: 12 }}>ft. {a.collaborators}</div>}
               </td>
               <td style={td}>{a.sku || "—"}</td>
-              <td style={td}>{a.price ? `$${a.price}` : "—"}</td>
+              <td style={td}>{a.price ?? "—"}</td>
               <td style={{ ...td, whiteSpace: "nowrap" }}>{a.release_date_display || a.release_date || "TBD"}</td>
               <td style={td}>{a.regions || "—"}</td>
               <td style={td}>

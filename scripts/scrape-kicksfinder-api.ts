@@ -115,7 +115,7 @@ async function upsertBatch(products: KFProduct[]) {
     return {
       slug: p.slug,
       publisher_id: PUBLISHER_ID,
-      title: [p.product_name.trim(), p.product_nickname?.trim()].filter(Boolean).join(" — "),
+      title: [p.product_name?.trim(), p.product_nickname?.trim()].filter(Boolean).join(" — ") || p.slug,
       url: `${KF_BASE}/${p.slug}`,
       content: buildContent(p),
       scraped_at: new Date().toISOString(),
